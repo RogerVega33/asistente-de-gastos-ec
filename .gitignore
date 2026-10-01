@@ -1,0 +1,10 @@
+# Configuración local del editor.
+/.idea/
+
+# Dependencias y registros de npm.
+node_modules/
+npm-debug.log*
+
+# Archivos auxiliares del sistema operativo.
+.DS_Store
+Thumbs.db

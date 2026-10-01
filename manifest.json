@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Asistente de Gastos EC",
+  "version": "0.1.0",
+  "description": "Te ayuda en la descarga de comprobantes electrónicos del SRI Ecuador y en el llenado del anexo de gastos personales.",
+  "minimum_chrome_version": "114",
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://sriservicios.sri.gob.ec/*",
+    "https://srienlinea.sri.gob.ec/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_title": "Abrir Asistente de Gastos EC",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sriservicios.sri.gob.ec/anexo-gastos-personales/*"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "lib/shared.js",
+        "content-script.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://srienlinea.sri.gob.ec/*"
+      ],
+      "js": [
+        "lib/download-shared.js",
+        "download-page.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}

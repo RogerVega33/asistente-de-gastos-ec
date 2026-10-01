@@ -1,0 +1,16 @@
+.sri-assistant-card-filled > .panel-heading {
+  border-left: 5px solid #20844a !important;
+  background-color: #edf9f1 !important;
+}
+
+/* El símbolo $ es un elemento hermano: también forma parte del campo visible. */
+form#deduccion input.sri-assistant-field-filled,
+form#deduccion .input-group:has(> input.sri-assistant-field-filled) > .input-group-addon {
+  border-color: #b8860b !important;
+  background-color: #fff8d6 !important;
+  box-shadow: none !important;
+}
+
+form#deduccion .input-group-addon + input.sri-assistant-field-filled {
+  border-left-color: #fff8d6 !important;
+}

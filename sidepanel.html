@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Asistente de Gastos EC</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <button id="back-home" class="back-button" type="button" aria-label="Volver" hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M19 12H5m7-7-7 7 7 7" />
+        </svg>
+      </button>
+      <div class="brand-mark" aria-hidden="true">AG</div>
+      <div class="header-copy">
+        <h1 id="app-title">Asistente de Gastos EC</h1>
+        <p id="app-subtitle">Tu ayudante en la descarga de comprobantes electrónicos y llenado del anexo de gastos personales</p>
+      </div>
+    </header>
+
+    <main id="home-view" class="home-main">
+      <section class="welcome-card">
+        <h2>¿Qué desea hacer?</h2>
+        <p>Elija una opción para continuar:</p>
+      </section>
+      <button id="choose-download" class="mode-card" type="button">
+        <span class="mode-icon" aria-hidden="true">&#8681;</span>
+        <span>
+          <strong>Descarga de comprobantes electrónicos</strong>
+          <small>Descargue documentos electrónicos por un rango de fecha.</small>
+        </span>
+        <span class="mode-arrow" aria-hidden="true">&#8250;</span>
+      </button>
+      <button id="choose-fill" class="mode-card" type="button">
+        <span class="mode-icon" aria-hidden="true">&#9998;</span>
+        <span>
+          <strong>Llenado de anexo de gastos personales</strong>
+          <small>Llene automáticamente sus gastos deducibles de impuestos para las facturas visibles en pantalla a partir de un archivo CSV.</small>
+        </span>
+        <span class="mode-arrow" aria-hidden="true">&#8250;</span>
+      </button>
+      <footer class="home-footer">
+        <a class="github-link" href="https://github.com/RogerVega33/asistente-de-gastos-ec" target="_blank" rel="noopener noreferrer" aria-label="Abrir repositorio en GitHub (nueva pestaña)" title="Ver el proyecto en GitHub">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+            <path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.52 11.52 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.3c0 .32.22.7.83.58A12 12 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z" />
+          </svg>
+        </a>
+      </footer>
+    </main>
+
+    <div id="fill-view" hidden>
+      <main>
+        <div class="message info view-requirement" role="note">
+          Antes de iniciar, debe encontrarse en la página de <strong>Generación de
+          Anexo de Gastos Personales</strong>, dentro de las facturas de un proveedor.
+        </div>
+        <section class="card" aria-labelledby="csv-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="csv-title">1. Archivo de entrada</h2>
+              <p>El CSV se procesa localmente y se conserva solo durante esta sesión.</p>
+            </div>
+            <button id="clear-file" class="text-button" type="button" hidden>Quitar</button>
+          </div>
+
+          <label class="file-picker" for="csv-file">
+            <span class="file-picker-title">Seleccionar CSV</span>
+            <span id="file-name" class="file-picker-detail">Ningún archivo cargado</span>
+            <input id="csv-file" type="file" accept=".csv,text/csv,text/plain" />
+          </label>
+          <div id="file-summary" class="summary-grid" hidden></div>
+          <div id="file-error" class="message error" role="alert" hidden></div>
+        </section>
+
+        <section class="card" aria-labelledby="page-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="page-title">2. Página visible</h2>
+              <p>Solo se analizarán las facturas presentes en el formulario actual.</p>
+            </div>
+            <button id="refresh-page" class="icon-button" type="button" title="Volver a analizar">
+              &#8635;
+            </button>
+          </div>
+
+          <div id="page-placeholder" class="placeholder">
+            Abra el detalle de un proveedor en el SRI.
+          </div>
+          <div id="page-summary" hidden>
+            <dl class="page-facts">
+              <div><dt>RUC</dt><dd id="provider-ruc">--</dd></div>
+              <div><dt>Página</dt><dd id="current-page">--</dd></div>
+              <div><dt>Facturas visibles</dt><dd id="visible-count">--</dd></div>
+            </dl>
+            <div id="match-summary" class="summary-grid"></div>
+          </div>
+          <div id="page-error" class="message error" role="alert" hidden></div>
+        </section>
+
+        <section class="card results-card" aria-labelledby="results-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="results-title">3. Coincidencias</h2>
+              <p>Revise las filas antes de llenar.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Factura</th>
+                  <th>Deducible CSV</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="results-body">
+                <tr><td colspan="3" class="empty-row">Aún no hay datos para comparar.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="action-bar">
+        <div id="action-message" class="message" role="status" hidden></div>
+        <button id="fill-page" class="primary-button" type="button" disabled>
+          Llenar página actual
+        </button>
+        <p>La extensión no presiona Guardar ni cambia de página.</p>
+      </footer>
+    </div>
+
+    <div id="download-view" hidden>
+      <main>
+        <div class="message info view-requirement" role="note">
+          Antes de iniciar, abra <strong>Comprobantes electrónicos recibidos</strong> en la página del SRI.
+        </div>
+        <section class="card" aria-labelledby="download-range-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="download-range-title">1. Rango de descarga</h2>
+              <p>Se consultará cada mes del rango, incluyendo el inicial y el final.</p>
+            </div>
+          </div>
+          <div class="document-type-picker" role="group" aria-labelledby="download-document-type-label">
+            <span id="download-document-type-label" class="month-label">Tipo de comprobante</span>
+            <div class="period-choice">
+              <button id="download-document-type-toggle" class="period-choice-toggle" type="button" aria-expanded="false" aria-controls="download-document-type-menu">
+                <span class="period-choice-value"></span><span aria-hidden="true">&#9662;</span>
+              </button>
+              <div id="download-document-type-menu" class="period-choice-menu document-type-options" role="listbox" hidden></div>
+              <input id="download-document-type" type="hidden" />
+            </div>
+          </div>
+          <div class="month-grid">
+            <div class="month-field" role="group" aria-labelledby="download-from-label">
+              <span id="download-from-label" class="month-label">Desde</span>
+              <div class="month-selects">
+                <div class="period-choice">
+                  <button id="download-from-month-toggle" class="period-choice-toggle" type="button" aria-expanded="false" aria-controls="download-from-month-menu">
+                    <span class="period-choice-value"></span><span aria-hidden="true">&#9662;</span>
+                  </button>
+                  <div id="download-from-month-menu" class="period-choice-menu month-options" role="listbox" hidden></div>
+                  <input id="download-from-month" type="hidden" />
+                </div>
+                <div class="period-choice">
+                  <button id="download-from-year-toggle" class="period-choice-toggle" type="button" aria-expanded="false" aria-controls="download-from-year-menu">
+                    <span class="period-choice-value"></span><span aria-hidden="true">&#9662;</span>
+                  </button>
+                  <div id="download-from-year-menu" class="period-choice-menu year-options" role="listbox" hidden></div>
+                  <input id="download-from-year" type="hidden" />
+                </div>
+              </div>
+            </div>
+            <div class="month-field" role="group" aria-labelledby="download-to-label">
+              <span id="download-to-label" class="month-label">Hasta</span>
+              <div class="month-selects">
+                <div class="period-choice">
+                  <button id="download-to-month-toggle" class="period-choice-toggle" type="button" aria-expanded="false" aria-controls="download-to-month-menu">
+                    <span class="period-choice-value"></span><span aria-hidden="true">&#9662;</span>
+                  </button>
+                  <div id="download-to-month-menu" class="period-choice-menu month-options" role="listbox" hidden></div>
+                  <input id="download-to-month" type="hidden" />
+                </div>
+                <div class="period-choice">
+                  <button id="download-to-year-toggle" class="period-choice-toggle" type="button" aria-expanded="false" aria-controls="download-to-year-menu">
+                    <span class="period-choice-value"></span><span aria-hidden="true">&#9662;</span>
+                  </button>
+                  <div id="download-to-year-menu" class="period-choice-menu year-options" role="listbox" hidden></div>
+                  <input id="download-to-year" type="hidden" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="download-files-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="download-files-title">2. Archivos</h2>
+              <p>Los archivos se guardarán en la carpeta Descargas de Chrome.</p>
+            </div>
+          </div>
+          <label class="check-option">
+            <input id="download-xml" type="checkbox" checked />
+            <span><strong>XML</strong><small>Archivo electrónico autorizado</small></span>
+          </label>
+          <label class="check-option">
+            <input id="download-pdf" type="checkbox" checked />
+            <span><strong>PDF</strong><small>Representación impresa del comprobante</small></span>
+          </label>
+        </section>
+
+        <section class="card" aria-labelledby="download-progress-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="download-progress-title">3. Progreso</h2>
+              <p>La descarga se realiza de forma secuencial.</p>
+            </div>
+          </div>
+          <div id="download-idle" class="placeholder">
+            Configure el rango y pulse Iniciar descarga.
+          </div>
+          <div id="download-progress" hidden>
+            <div class="summary-grid">
+              <div class="metric ready"><strong id="download-files-count">0</strong><span>Archivos</span></div>
+              <div class="metric"><strong id="download-period">--</strong><span>Periodo</span></div>
+              <div class="metric"><strong id="download-page">--</strong><span>Página</span></div>
+            </div>
+            <div id="download-message" class="message info" role="status"></div>
+          </div>
+          <div id="download-error" class="message error" role="alert" hidden></div>
+        </section>
+      </main>
+
+      <footer class="action-bar">
+        <button id="start-download" class="primary-button" type="button">Iniciar descarga</button>
+        <button id="cancel-download" class="secondary-button" type="button" hidden>Cancelar</button>
+      </footer>
+    </div>
+
+    <script src="lib/shared.js"></script>
+    <script src="lib/csv.js"></script>
+    <script src="lib/download-shared.js"></script>
+    <script src="app.js"></script>
+    <script src="sidepanel.js"></script>
+    <script src="download-panel.js"></script>
+  </body>
+</html>
