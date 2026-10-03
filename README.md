@@ -13,13 +13,28 @@ La extensión funciona únicamente en las páginas del SRI indicadas en esta gu�
 Es una herramienta desarrollada de forma independiente, sin afiliación ni respaldo del Servicio de Rentas Internas (SRI).
 Su propósito es facilitar la gestión de comprobantes y gastos personales para el cumplimiento de las obligaciones tributarias a lo largo del año.
 
-## Instalar localmente
+## Instalación
 
-1. Abra `chrome://extensions` en Chrome.
-2. Active **Modo de desarrollador**.
-3. Pulse **Cargar descomprimida**.
-4. Seleccione la carpeta que contiene este proyecto.
-5. Fije la extensión **Asistente de Gastos EC** a la barra del navegador para un fácil acceso.
+### Desde Chrome Web Store
+
+1. Abra [Asistente de Gastos EC en Chrome Web Store](https://chromewebstore.google.com/detail/asistente-de-gastos-ec/njhbeoljcleacjocmidimbmdebmmnjoc).
+2. Pulse **Añadir a Chrome** y confirme la instalación.
+3. Fije la extensión **Asistente de Gastos EC** a la barra del navegador para un fácil acceso.
+
+### Desde el código fuente (para desarrollo)
+
+Esta opción permite probar o modificar la extensión durante el desarrollo.
+
+1. Clone el repositorio o descargue el código como ZIP y descomprímalo.
+2. Abra `chrome://extensions` en Chrome.
+3. Active **Modo de desarrollador**.
+4. Pulse **Cargar descomprimida**.
+5. Seleccione la carpeta que contiene este proyecto.
+6. Fije la extensión **Asistente de Gastos EC** a la barra del navegador para un fácil acceso.
+
+Después de modificar el código, pulse **Recargar** en la tarjeta de la extensión y recargue la página del SRI para aplicar los cambios.
+
+### Permisos
 
 La extensión solicita acceso solamente a:
 
