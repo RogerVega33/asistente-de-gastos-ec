@@ -47,6 +47,9 @@ También solicita el permiso de Chrome **Administrar tus descargas** para asigna
 
 ## Descargar comprobantes electrónicos
 
+![Demo de descarga de comprobantes electrónicos con Asistente de Gastos EC](docs/assets/demo-descarga-comprobantes-electronicos.gif)
+
+
 ### Flujo de trabajo
 
 1. Inicie sesión en el SRI y abra **Facturación electrónica** -> **Comprobantes electrónicos recibidos**.
@@ -62,6 +65,9 @@ Factura_001-001-000000001.pdf
 ```
 
 ## Llenar anexo de gastos personales
+
+![Demo de llenado del anexo de gastos personales con Asistente de Gastos EC](docs/assets/demo-llenado-anexo.gif)
+
 
 Para el llenado del anexo de gastos personales necesita cargar un CSV con la información de gastos personales por proveedor, factura y categoría.
 Es 100% compatible con el archivo CSV generado por la aplicación [Analizador de facturas](https://github.com/RogerVega33/analizador-de-facturas-deploy).
