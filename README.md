@@ -99,7 +99,8 @@ El encabezado debe contener exactamente esos nombres y en ese orden. También se
 
 - Para encontrar una factura y llenar su información se necesita contar con el RUC y el número de factura exactos.
 - Una factura duplicada en el CSV impide cargar el archivo.
-- Si la suma de deducibles supera el máximo disponible mostrado por el SRI, verá un error y no se llenarán los deducibles de esa factura.
+- Campos completados*, en amarillo, indica que algún campo de la factura difiere del CSV.
+- Si el deducible del CSV supera el subtotal de la factura (esto puede pasar por una nota de crédito) y la factura aún no tiene importes, verá **Supera el máximo disponible** en rojo. Si ya tiene importes diferentes del CSV, por ejemplo tras un ajuste manual, verá "Campos completados*" en amarillo. En ambos casos, esa factura se excluye del llenado automático.
 - El CSV se guarda en `chrome.storage.session`: permanece en memoria durante la sesión del navegador y no se sincroniza ni se envía a servidores externos.
 
 ## Licencia

@@ -384,9 +384,78 @@
 
   let paginationTimer = null;
   let paginationChecksRemaining = 0;
+  let saveObserver = null;
+  let saveRefreshTimer = null;
+  let saveWatchdog = null;
   function notifyVisiblePage() {
     chrome.runtime.sendMessage({ type: "SRI_VISIBLE_PAGE_CHANGED" }).catch(() => {});
   }
+
+  function stopSaveWatch() {
+    clearTimeout(saveRefreshTimer);
+    clearTimeout(saveWatchdog);
+    saveRefreshTimer = null;
+    saveWatchdog = null;
+    saveObserver?.disconnect();
+    saveObserver = null;
+  }
+
+  function watchSaveResult(form) {
+    stopSaveWatch();
+    let responseObserved = false;
+    const scheduleRefresh = () => {
+      clearTimeout(saveRefreshTimer);
+      saveRefreshTimer = setTimeout(() => {
+        saveRefreshTimer = null;
+        notifyVisiblePage();
+        if (responseObserved) stopSaveWatch();
+      }, 300);
+    };
+    // Relee los valores tras Guardar y espera una posible respuesta AJAX tardía.
+    scheduleRefresh();
+    if (!form?.parentElement) return;
+    saveObserver = new MutationObserver((mutations) => {
+      const relevant = mutations.some((mutation) => {
+        const target = mutation.target.nodeType === Node.TEXT_NODE
+          ? mutation.target.parentElement
+          : mutation.target;
+        return target?.nodeType === Node.ELEMENT_NODE && (
+          target.closest(DETAIL_FORM_SELECTOR) ||
+          [...mutation.addedNodes, ...mutation.removedNodes].some((node) =>
+            node.nodeType === Node.ELEMENT_NODE && (
+              node.matches(DETAIL_FORM_SELECTOR) || node.querySelector(DETAIL_FORM_SELECTOR)
+            )
+          )
+        );
+      });
+      if (relevant) {
+        responseObserved = true;
+        scheduleRefresh();
+      }
+    });
+    // Solo durante el guardado, sin atributos ni cambios de nuestras clases CSS.
+    saveObserver.observe(form.parentElement, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+    saveWatchdog = setTimeout(stopSaveWatch, 10000);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!event.isTrusted || !(event.target instanceof Element)) return;
+    const control = event.target.closest("button, input[type='submit'], input[type='button'], a");
+    const form = control?.closest(DETAIL_FORM_SELECTOR);
+    if (!form) return;
+    const label = [control.textContent, control.value,
+      control.getAttribute("aria-label"), control.getAttribute("title")].join(" ");
+    if (/\bguardar\b/i.test(label)) watchSaveResult(form);
+  }, { capture: true, passive: true });
+  document.addEventListener("submit", (event) => {
+    if (event.isTrusted && event.target instanceof Element && event.target.matches(DETAIL_FORM_SELECTOR)) {
+      watchSaveResult(event.target);
+    }
+  }, { capture: true, passive: true });
 
   function checkPageAfterPagination() {
     const signature = pageSignature();
@@ -427,6 +496,7 @@
   window.addEventListener("pagehide", () => {
     clearHighlights();
     clearTimeout(paginationTimer);
+    stopSaveWatch();
   });
   window.addEventListener("popstate", clearHighlights);
   window.addEventListener("pageshow", (event) => {

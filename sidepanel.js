@@ -28,8 +28,30 @@
   let filling = false;
   let refreshAfterFill = false;
   let refreshSequence = 0;
+  let actionMessageText = "";
+  let actionMessageKind = "";
+
+  function renderActionMessage() {
+    const hasDifferences = !!currentAnalysis?.warnings.length;
+    const text = actionMessageText || (hasDifferences
+      ? "Se actualizó la página visible. Revise las coincidencias."
+      : "");
+    const note = hasDifferences ? "* Los campos completados difieren del CSV" : "";
+    const kind = hasDifferences && !filling && actionMessageKind !== "error"
+      ? "info"
+      : actionMessageKind;
+    elements.actionMessage.textContent = [text, note].filter(Boolean).join("\n");
+    elements.actionMessage.className = `message ${kind}`.trim();
+    elements.actionMessage.hidden = !text && !note;
+  }
 
   function setMessage(element, text = "", kind = "") {
+    if (element === elements.actionMessage) {
+      actionMessageText = text;
+      actionMessageKind = kind;
+      renderActionMessage();
+      return;
+    }
     element.textContent = text;
     element.className = `message ${kind}`.trim();
     element.hidden = !text;
@@ -96,29 +118,44 @@
     const results = page.invoices.map((invoice) => {
       const row = byInvoice.get(invoice.invoice);
       if (!row) return { invoice, state: "skip", label: "No está en el CSV", row: null };
-      if (row.totalCents === 0) {
+      const matchesCsv = shared.CATEGORY_DEFINITIONS.every(
+        (category) => invoice.values[category.key] === row.values[category.key]
+      );
+      if (row.totalCents === 0 && matchesCsv) {
         return { invoice, state: "found", label: "Encontrada, sin deducibles", row };
       }
       if (invoice.missingFields.length) {
         return { invoice, state: "error", label: "Faltan campos en el formulario", row };
       }
-      if (
-        invoice.availableTotalCents !== null &&
-        shared.projectedTotalCents(invoice.values, row.values) > invoice.availableTotalCents
-      ) {
-        return { invoice, state: "error", label: "Supera el máximo disponible", row };
-      }
-      if (shared.specifiedValuesEqual(invoice.values, row.values)) {
+      if (matchesCsv) {
         return { invoice, state: "equal", label: "Campos completados", row };
+      }
+      const exceedsMaximum = invoice.availableTotalCents !== null &&
+        shared.projectedTotalCents(invoice.values, row.values) > invoice.availableTotalCents;
+      const needsFill = !shared.specifiedValuesEqual(invoice.values, row.values);
+      const hasFilledValues = shared.CATEGORY_DEFINITIONS.some(
+        (category) => Number.isInteger(invoice.values[category.key]) && invoice.values[category.key] > 0
+      );
+      if (!needsFill || hasFilledValues) {
+        return {
+          invoice, state: "warning", label: "Campos completados*", row,
+          needsFill: needsFill && !exceedsMaximum
+        };
+      }
+      if (exceedsMaximum) {
+        return { invoice, state: "error", label: "Supera el máximo disponible", row };
       }
       return { invoice, state: "ready", label: "Lista para llenar", row };
     });
 
     return {
       results,
-      ready: results.filter((result) => result.state === "ready"),
+      ready: results.filter((result) =>
+        result.state === "ready" || (result.state === "warning" && result.needsFill)
+      ),
       equal: results.filter((result) => result.state === "equal"),
       found: results.filter((result) => result.state === "found"),
+      warnings: results.filter((result) => result.state === "warning"),
       errors: results.filter((result) => result.state === "error")
     };
   }
@@ -132,6 +169,7 @@
         '<tr><td colspan="3" class="empty-row">Aún no hay datos para comparar.</td></tr>';
       elements.fillButton.disabled = true;
       elements.fillButton.textContent = "Llenar página actual";
+      renderActionMessage();
       return;
     }
 
@@ -142,9 +180,11 @@
     elements.visibleCount.textContent = currentPage.invoices.length;
 
     currentAnalysis = analyzePage(currentPage);
+    const completedCount = currentAnalysis.equal.length + currentAnalysis.found.length +
+      currentAnalysis.warnings.filter((result) => !result.needsFill).length;
     elements.matchSummary.innerHTML = metrics([
       { value: currentAnalysis.ready.length, label: "Por llenar", kind: "ready" },
-      { value: currentAnalysis.equal.length + currentAnalysis.found.length, label: "Sin cambios" },
+      { value: completedCount, label: "Sin cambios" },
       { value: currentAnalysis.errors.length, label: "Errores", kind: currentAnalysis.errors.length ? "error" : "" }
     ]);
 
@@ -160,7 +200,6 @@
       .join("");
 
     const readyCount = currentAnalysis.ready.length;
-    const completedCount = currentAnalysis.equal.length + currentAnalysis.found.length;
     if (filling) {
       elements.fillButton.textContent = "Llenando facturas...";
     } else if (readyCount > 0) {
@@ -172,6 +211,7 @@
       elements.fillButton.textContent = "Llenar página actual";
     }
     elements.fillButton.disabled = filling || !dataset || readyCount === 0;
+    renderActionMessage();
   }
 
   async function refreshPage({ quiet = false } = {}) {

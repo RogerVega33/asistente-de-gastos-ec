@@ -90,6 +90,8 @@ main {
   padding: 12px 12px 150px;
 }
 
+#fill-view main { padding-bottom: 180px; }
+
 body[data-mode="home"] { display: flex; flex-direction: column; min-height: 100vh; }
 .home-main { display: flex; flex-direction: column; flex: 1; padding-bottom: 20px; }
 .home-footer { display: flex; justify-content: center; margin-top: auto; padding-top: 16px; }
@@ -211,6 +213,7 @@ body[data-mode="home"] { display: flex; flex-direction: column; min-height: 100v
 .message.error { color: #8b1e1e; background: #fff0f0; border: 1px solid #f3c4c4; }
 .message.success { color: #105c34; background: #eaf8ef; border: 1px solid #bce3ca; }
 .message.info { color: #154f77; background: #eaf5fc; border: 1px solid #bfdcf0; }
+#action-message { white-space: pre-line; }
 .view-requirement { margin-top: 0; }
 
 .month-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
@@ -286,6 +289,7 @@ th { padding: 7px 9px; color: #5f6c76; background: #f5f7f8; font-size: 9px; text
 td { padding: 8px 9px; border-top: 1px solid #e6ebee; vertical-align: top; }
 td:first-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .status-ready, .status-equal { color: #12693a; font-weight: 700; }
+.status-warning { color: #9a6700; font-weight: 700; }
 .status-found { color: #38647f; font-weight: 700; }
 .status-skip { color: #808a91; }
 .status-error { color: #a32929; font-weight: 700; }
